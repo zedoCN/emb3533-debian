@@ -1,0 +1,8 @@
+diff --git a/arch/arm/mach-rockchip/rockchip.c b/arch/arm/mach-rockchip/rockchip.c
+--- a/arch/arm/mach-rockchip/rockchip.c
++++ b/arch/arm/mach-rockchip/rockchip.c
+@@ -24 +24,3 @@
+-	if (of_machine_is_compatible("rockchip,rk3288")) {
++	/* On EMB-3533, timer6/7 access with vendor firmware aborts. */
++	if (of_machine_is_compatible("rockchip,rk3288") &&
++	    !of_machine_is_compatible("norco,emb3533")) {

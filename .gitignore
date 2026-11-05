@@ -1,0 +1,15 @@
+build/
+downloads/
+private/
+*.img
+*.img.gz
+*.tar.gz
+*.tar.xz
+*.raw
+*.dtb
+*.zImage
+*.key
+*.pem
+.env*
+__pycache__/
+*.pyc
