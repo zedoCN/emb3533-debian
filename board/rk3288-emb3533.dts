@@ -79,6 +79,23 @@
 };
 &uart1 { status = "okay"; };
 
+// The on-board RTL8188EU is behind the seven-port hub on USB host1.
+// Match the vendor hub reset: GPIO0_B6 stays high after pin configuration.
+&usbphy { status = "okay"; };
+&usb_host1 {
+	status = "okay";
+	pinctrl-names = "default";
+	pinctrl-0 = <&usb_hub_reset>;
+};
+&pinctrl {
+	usb_hub_output_high: usb-hub-output-high { output-high; };
+	usb-host1 {
+		usb_hub_reset: usb-hub-reset {
+			rockchip,pins = <0 RK_PB6 RK_FUNC_GPIO &usb_hub_output_high>;
+		};
+	};
+};
+
 // Match the vendor firmware's nonsecure DMA alias. Secure efuse is not needed
 // for this CLI probe (CPU DVFS is disabled and the Ethernet MAC is supplied).
 &dmac_bus_s { status = "disabled"; };

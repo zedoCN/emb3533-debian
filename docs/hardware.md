@@ -10,7 +10,7 @@
 | 板载存储 | 标称 16GB eMMC，可部署 Debian |
 | 根文件系统 | TF 或 eMMC，Debian armhf |
 | 有线网络 | 千兆以太网，基础联网已验证 |
-| Wi-Fi | 验证板卡原系统识别为 RTL8188EU USB 设备，Debian 尚未联网验收 |
+| Wi-Fi | RTL8188EU USB，2.4GHz，Debian 下已验证联网；不支持 5GHz |
 | 原 Android | Android 7.1.2，固件构建日期 2023-03-03 |
 | 原厂引导器 | `2014.10-RK3288-06-g37a5f47`，默认 `bootcmd=bootrk` |
 
@@ -54,3 +54,4 @@ USB 桥可能在板卡 12V 断开时仍被 Mac 供电枚举，**看到串口不�
 TF 设备树禁用 eMMC，便于保留 Android；eMMC 变体启用板载控制器。
 控制器探测顺序和块设备编号不能作为永久身份，应使用 PARTUUID 等稳定标识。
 安装前见 [Android 备份](android-backup.md) 与 [eMMC 迁移](emmc-migration.md)。
+板载无线连接方法见 [Wi-Fi 指南](wifi.md)。

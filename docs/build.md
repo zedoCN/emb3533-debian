@@ -93,6 +93,7 @@ KRNL 的 CRC 多项式为 `0x04c10db7`，不能换成常见的 zlib CRC32。
 - 模块包须安装到目标根下的 `lib/modules/<kernelrelease>/`，再对该版本运行 `depmod`。
   不把其他版本模块复制过来凑数。
 - 设置自己的稳定 MAC 或网络策略；公开 DTS 不包含实测设备的工厂 MAC。
+- 板载 Wi-Fi 使用 `CONFIG_RTL8XXXU=m`，根系统还需固件与网络工具，见 [Wi-Fi 指南](wifi.md)。
 
 如何更换目标存储的启动区、保留恢复点和确认启动成功，见 [启动与恢复](boot-and-recovery.md)。
 

@@ -22,6 +22,9 @@
 | 原生 systemd | PID 1 为 systemd，基础服务可用 |
 | 四核 SMP | CPU0–3 在线，四个进程分别绑定计算，结果一致 |
 | 有线网络 | DHCP、DNS、密钥 SSH、局域网另一台机器直连 HTTP 200 |
+| 板载 Wi-Fi | RTL8188EU/rtl8xxxu，2.4GHz；识别/扫描/WPA2/DHCP/DNS/HTTPS与正常重启自动连接通过 |
+| 无线独立访问 | 临时停用以太网后无线 SSH、HTTPS通过；有线链路 down 且地址保留时，路由可选择无线 |
+| 内部 USB 链路 | USB host1 → 7口 Hub → RTL8188EU 枚举和运行通过 |
 | 基础应用 | Python、SQLite、临时 systemd 服务运行通过 |
 | 内核模块 | 匹配模块安装、vermagic 比对与 algif_hash 加载/卸载通过 |
 | 随机数 | 配合 jitterentropy-rngd 独立启动，不依赖固定 DT 种子 |
@@ -33,7 +36,8 @@
 | --- | --- |
 | HDMI/DRM、声音、媒体 | 配置关闭，提供 SSH 命令行用途 |
 | CPU 调频 / idle | 配置关闭，厂商内核最高频率不能代表此配置的性能 |
-| USB / Wi-Fi | 板级接口与联网未验收，编译出模块不等于可用 |
+| 其余 USB / OTG | 未做逐口插拔或 OTG 主从切换验证 |
+| Wi-Fi 扩展验证 | 新 Wi-Fi 配置的物理冷启动、实际拔线切换时延、IPv6、AP模式与长期传输未验收 |
 | 温控、长期满载 | 未验收，短时功能测试不能证明长期稳定性 |
 | PMIC 软件切电 | 未完成；文件系统卸载后不切电，随后可能出现 RCU 停机警告，需手动断 12V |
 | 完整安装体验 | 未提供通用整卡或 eMMC 写入安装器 |
@@ -43,3 +47,5 @@ TF 与 eMMC 的公开 DTS 不携带设备专属 MAC；实际部署需提供自�
 原始设备回执与日志不公开，仓库保留复用所需的配置、方法与结论。
 
 历史故障与设计原因见 [适配经验](bringup-notes.md)，迁移顺序见 [eMMC 指南](emmc-migration.md)。
+
+Wi-Fi 的驱动、固件、网络配置与测试方法见 [Wi-Fi 指南](wifi.md)。
