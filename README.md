@@ -1,55 +1,61 @@
 # NORCO EMB-3533 Debian
 
-RK3288/RK3288W 工控板的原生 Debian 命令行适配记录、设备树和构建脚本。
-适用于本次测试的 **EMB-3533、2GB RAM、原厂 2023-03 U-Boot**；其他板卡/固件未验证。
+让 NORCO EMB-3533 工控板从 **TF 卡运行原生 Debian**，保留板载 Android，用于命令行、脚本和小服务实验。
 
-## 当前实机状态
+本项目提供板级设备树、内核补丁、构建与封装工具，以及实机适配经验。
+目前面向 **EMB-3533 / RK3288（RK3288W）、2GB RAM、原厂 2023-03 Android 固件所带的 U-Boot 2014.10** 这一实测组合。
+其他板卡版本和固件需要重新核对。
 
-- Debian 13.7 armhf 已由 12.15 升级，在 TF 卡独立运行，原 eMMC Android 保留。
-- Linux 6.12.115 已通过 RAM kexec 实测：原生 systemd、四核、有线 DHCP/DNS/SSH、TF ext4 读写、Python/SQLite 和局域网 HTTP 服务。
-- Linux 7.3.1 已通过四核 RAM 试启动，也已设为 TF 默认内核并通过原厂 U-Boot 正常重启；完整匹配模块已安装，模块加载通过。
-- Python 3.13.5、systemd 257.13；升级结束的软件包检查通过，SSH 与有线网络正常，无失败服务。
-- HDMI 图形输出、声音、媒体、CPU 调频/idle 当前关闭；Wi-Fi、USB 板级扩展、温控及长期稳定性尚未验收。
-- 升级后实际断电上电通过：四核、SSH自动恢复、TF读写、Python/SQLite/DNS和局域网HTTP服务验证成功，无失败服务。
-- 软件关机目前不会切断板卡电源，需手动断12V；详细边界见 [验证记录](docs/status.md)。
+## 现在能做什么
 
-## 仓库内容
+截至 2026-11-06，实机运行 **Debian 13.7 armhf + Linux 7.3.1-emb3533**：
 
-- `board/`：本板实验设备树，已移除单台设备 MAC 等个人配置。
-- `patches/`：原厂固件下主线内核访问 timer6/7 异常的板级补丁。
-- `scripts/`：固定源码版本的构建与 Rockchip KRNL 封装工具。
-- `docs/`：启动限制、实机验证与恢复方法。
+- 原厂 U-Boot 从 TF 启动，systemd 作为 PID 1，四核在线。
+- 有线 DHCP、DNS、密钥 SSH、TF ext4 读写和匹配内核模块通过验证。
+- Python、SQLite、临时 systemd 服务与局域网 HTTP 服务实测通过。
+- 正常重启和断电上电均已验证；原 eMMC Android 保留。
 
-不包含原厂固件、设备备份、私钥、账号或个人网络配置。
-这是适配项目，不是对所有 RK3288 盒子通用的镜像。
+当前配置通过 SSH 使用。HDMI/DRM、声音、媒体、CPU 调频和 idle **已关闭**；
+USB、Wi-Fi、温控和长期负载尚未验收。软件关机能卸载文件系统，但仍需手动断开 12V。
+完整支持范围见 [适配状态与验证](docs/status.md)。
 
-## 构建
+## 从哪里开始
 
-构建机使用 Linux，安装 `gcc-arm-linux-gnueabihf make bc bison flex libssl-dev libelf-dev cpio curl python3 device-tree-compiler`。
-运行 `bash scripts/build.sh`；内核、DTB 和匹配的模块包输出在 `build/`。构建不会刷写任何设备。
-`board/kernel.config` 从实测 7.3.1 配置导出；已验证还原后与实机配置一致。
+| 你的目标 | 文档 |
+| --- | --- |
+| 了解板卡、接口和 DEBUG 串口 | [硬件与调试连接](docs/hardware.md) |
+| 编译内核、DTB 和匹配模块，生成 KRNL 文件 | [构建指南](docs/build.md) |
+| 理解 TF 启动条件、安装边界和恢复路径 | [启动与恢复](docs/boot-and-recovery.md) |
+| 排查黑屏、kexec、timer/DMA、init 和随机数问题 | [适配经验](docs/bringup-notes.md) |
+| 高效提取原 Android 到私有服务器 | [Android eMMC 备份](docs/android-backup.md) |
+| 确认哪些功能真的测过、下一步适合做什么 | [适配状态与验证](docs/status.md) |
+| 修改项目或报告另一块板子的结果 | [贡献指南](CONTRIBUTING.md) |
 
-`scripts/make_kernel_image.py` 将 DTB 追加到 zImage 后封装为 KRNL 文件，并要求显式指定根设备。
-这一启动方式保留原厂 U-Boot/resource/ramdisk，引导主线内核直接挂载 TF ext4 根分区；
-关键 MMC、供电、ext4 等驱动必须内置。它只生成文件，不会修改存储设备。
-设备树不含单台机器 MAC；部署时应按自己的设备设置稳定 MAC 或 DHCP 配置。
+## 构建入口
 
-生成供原厂引导器使用的内核文件，例如：
+在 Linux 构建机安装依赖后运行：
 
 ```sh
-python3 scripts/make_kernel_image.py \
-  build/kernel-out/arch/arm/boot/zImage \
-  build/kernel-out/arch/arm/boot/dts/rockchip/rk3288-emb3533-trial.dtb \
-  build/emb3533-kernel.img --root /dev/mmcblk0p1
+sudo apt install gcc-arm-linux-gnueabihf make bc bison flex \
+  libssl-dev libelf-dev cpio curl python3 device-tree-compiler patch xz-utils
+bash scripts/build.sh
 ```
 
-TF 根文件系统需自行准备为 Debian armhf，安装 systemd、有线网络、OpenSSH 和
-`jitterentropy-rngd`，配置自己的SSH密钥/网络，并安装匹配模块。构建脚本不制作根文件系统。
-随机数服务应在首次独立启动前启用；不能把曾用于测试的固定随机种子写进永久镜像。
+脚本固定内核版本和源码 SHA-256，输出在 `build/`，不会刷写设备。
+后续封装命令和根文件系统要求见 [构建指南](docs/build.md)。
 
-## 启动要点
+**这还不是开箱即用的整卡发行版。** 仓库不制作 Debian 根文件系统，也不分发
+原厂 U-Boot、Trust、resource 或整卡镜像。仅运行构建脚本不会得到可直接写卡启动的完整系统。
 
-旧 Rockchip U-Boot 使用 KRNL 封装，不能用 Android-v0 boot.img 代替。
-主线的 secure DMA 地址与本机原厂 DT 不同；设备树使用原厂非安全别名。
-ARM kexec-tools 旧版本需要显式限制装载范围以避开 multi_v7 解压目标。
-详见 [适配状态](docs/status.md)。
+## 项目结构
+
+```text
+board/       板级 DTS 与实测内核配置
+patches/     当前内核需要的板级补丁
+scripts/     Linux 构建、KRNL 封装及追加 DTB 工具
+docs/        硬件、构建、启动、排障与备份文档
+```
+
+设备树已移除单台机器的 MAC；部署时需设置自己的网络身份。
+原始备份、账号、密钥、芯片身份和未脱敏串口日志不进入本仓库。
+代码许可见 [LICENSE](LICENSE)。
