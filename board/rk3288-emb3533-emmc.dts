@@ -1,0 +1,15 @@
+// SPDX-License-Identifier: GPL-2.0-or-later
+// eMMC-capable variant; selecting it does not write to storage.
+#include "rk3288-emb3533.dts"
+
+&emmc {
+	status = "okay";
+	bus-width = <8>;
+	max-frequency = <50000000>;
+	non-removable;
+	cap-mmc-highspeed;
+	vmmc-supply = <&vcc_io>;
+	vqmmc-supply = <&vcc_flash>;
+	pinctrl-names = "default";
+	pinctrl-0 = <&emmc_clk &emmc_cmd &emmc_bus8 &emmc_pwr>;
+};

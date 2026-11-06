@@ -1,11 +1,11 @@
 # 适配经验与故障定位
 
 这些结论来自本次实机 bring-up，保留可复用的原因与判断方法。
-地址和装载窗口只对已验证的板卡、固件及构建组合成立；当前支持范围以 [适配状态](status.md) 为准。
+地址和装载窗口只对已验证的板卡、固件及构建组合成立；当前支持范围以 [支持矩阵](status.md) 为准。
 
 ## 启动文件格式与整卡镜像
 
-本机旧 Rockchip 引导器分别读取 KRNL 封装的 kernel 和 ramdisk，不能用 Android-v0
+验证用旧 Rockchip 引导器分别读取 KRNL 封装的 kernel 和 ramdisk，不能用 Android-v0
 单体 boot.img 直接代替。先用已知厂商文件校验封装工具，再逐区测试，比重复整卡覆盖更容易定位。
 KRNL 工具的格式依据是固定厂商源码中的
 [`scripts/mkkrnlimg.c`](https://github.com/rockchip-linux/kernel/blob/9ead5f3cbd6e0abd0ac70002205993c953c227ea/scripts/mkkrnlimg.c)。
@@ -32,7 +32,7 @@ Debian 12 的 kexec-tools 2.0.25 按 `TEXT_OFFSET=0x8000` 估算，
 ## timer：修改 DT 仍会崩溃
 
 `rockchip_timer_init` 在设备树时钟初始化前直接访问 timer6/7 `0xff810000`，
-本机原厂固件下触发 external abort，因此仅禁用 DT 节点不够。
+验证用原厂固件下触发 external abort，因此仅禁用 DT 节点不够。
 [`timer 补丁`](../patches/0001-emb3533-preserve-firmware-timer.patch) 对
 `norco,emb3533` 跳过这段写入，保留固件已初始化的架构定时器。
 板级 DT 使用原厂 timer0 `0xff6b0000` / IRQ66；实机日志确认 24MHz 架构定时器工作。
@@ -59,7 +59,7 @@ Debian 12 的 kexec-tools 2.0.25 按 `TEXT_OFFSET=0x8000` 估算，
 执行 `switch_root /newroot /lib/systemd/systemd`。
 读取 `/newroot/etc/debian_version` 只能证明根文件可读；切根后还需确认 PID 1 是 systemd。
 
-当前 7.3.1 路线已改成内核直接挂 TF 根，不再依赖这一 initramfs。
+7.3.1 路线使用内核直接挂载所选根分区，不再依赖这一 initramfs。
 另一个相关问题是 `CONFIG_CMDLINE_EXTEND`：编译参数追加在 DT 参数之后，
 其中固定的 `init=/init` 会破坏直接挂根，必须从编译参数中移除。
 

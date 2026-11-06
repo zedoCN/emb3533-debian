@@ -18,14 +18,18 @@ if [[ ! -d "$SOURCE_DIR" ]]; then
 fi
 patch --dry-run --reverse --batch -d "$SOURCE_DIR" -p1 < "$ROOT_DIR/patches/0001-emb3533-preserve-firmware-timer.patch" > /dev/null
 cp "$ROOT_DIR/board/rk3288-emb3533.dts" "$SOURCE_DIR/arch/arm/boot/dts/rockchip/rk3288-emb3533-trial.dts"
+# Keep the existing TF artifact name; the eMMC variant includes the shared source.
+cp "$ROOT_DIR/board/rk3288-emb3533.dts" "$SOURCE_DIR/arch/arm/boot/dts/rockchip/rk3288-emb3533.dts"
+cp "$ROOT_DIR/board/rk3288-emb3533-emmc.dts" "$SOURCE_DIR/arch/arm/boot/dts/rockchip/rk3288-emb3533-emmc.dts"
 export ARCH=arm CROSS_COMPILE=${CROSS_COMPILE:-arm-linux-gnueabihf-}
 OUTPUT_DIR="$WORK_DIR/kernel-out"
 mkdir -p "$OUTPUT_DIR"
 cp "$ROOT_DIR/board/kernel.config" "$OUTPUT_DIR/.config"
 make -C "$SOURCE_DIR" O="$OUTPUT_DIR" olddefconfig
-make -C "$SOURCE_DIR" O="$OUTPUT_DIR" -j"${JOBS:-4}" zImage rockchip/rk3288-emb3533-trial.dtb modules
+make -C "$SOURCE_DIR" O="$OUTPUT_DIR" -j"${JOBS:-4}" zImage rockchip/rk3288-emb3533-trial.dtb rockchip/rk3288-emb3533-emmc.dtb modules
 MODULES_DIR="$WORK_DIR/modules"
 make -C "$SOURCE_DIR" O="$OUTPUT_DIR" INSTALL_MOD_PATH="$MODULES_DIR" INSTALL_MOD_STRIP=1 modules_install
 find "$MODULES_DIR/lib/modules" -maxdepth 2 -type l \( -name build -o -name source \) -delete
 tar --owner=0 --group=0 -C "$MODULES_DIR" -czf "$WORK_DIR/emb3533-$VERSION-modules.tar.gz" "lib/modules/$VERSION-emb3533"
 printf 'Built %s and %s\n' "$OUTPUT_DIR/arch/arm/boot/zImage" "$OUTPUT_DIR/arch/arm/boot/dts/rockchip/rk3288-emb3533-trial.dtb"
+printf 'eMMC variant: %s\n' "$OUTPUT_DIR/arch/arm/boot/dts/rockchip/rk3288-emb3533-emmc.dtb"

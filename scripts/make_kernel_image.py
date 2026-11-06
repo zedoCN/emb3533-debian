@@ -7,6 +7,7 @@ Produces a file only. Does not flash a card or change its partition table.
 import argparse
 import hashlib
 from pathlib import Path
+import re
 import shutil
 import subprocess
 import tempfile
@@ -19,12 +20,14 @@ def main() -> None:
     parser.add_argument("zimage", type=Path)
     parser.add_argument("dtb", type=Path)
     parser.add_argument("output", type=Path)
-    parser.add_argument("--root", required=True, help="Linux root device, such as /dev/mmcblk0p1")
+    parser.add_argument("--root", required=True, help="Root /dev/ path or DOS PARTUUID, such as PARTUUID=1a2b3c4d-01")
     args = parser.parse_args()
     if str(args.output.resolve()).startswith("/dev/"):
         parser.error("Output must be a regular artifact, not a device")
-    if not args.root.startswith("/dev/") or any(c.isspace() for c in args.root):
-        parser.error("Root must be one explicit /dev/ device path")
+    root_is_device = args.root.startswith("/dev/")
+    root_is_partuuid = re.fullmatch(r"PARTUUID=[0-9a-fA-F]{8}-[0-9a-fA-F]{2}", args.root) is not None
+    if not (root_is_device or root_is_partuuid) or any(c.isspace() for c in args.root):
+        parser.error("Root must be one /dev/ path or DOS PARTUUID=xxxxxxxx-xx")
     command_line = (
         f"root={args.root} rootfstype=ext4 rw rootwait init=/lib/systemd/systemd "
         "console=ttyS1,115200n8 earlycon=uart8250,mmio32,0xff190000 "
