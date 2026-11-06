@@ -47,7 +47,7 @@ Debian 12 的 kexec-tools 2.0.25 按 `TEXT_OFFSET=0x8000` 估算，
 
 比较厂商与主线 DT 时，应看实际 `reg`、中断、供电和 phandle，不能只对照节点名。
 原厂使用 secure-efuse 驱动；主线的直接 efuse 读取暂时禁用。
-当前 CPU DVFS 关闭，网络身份由部署者配置，不依赖这里的 efuse 读取。
+当前 CPU DVFS 使用保守的原厂 L0 电压、不读取 efuse 分档；网络身份由部署者配置。
 
 ## 挂根与 init 的绝对软链接
 
@@ -85,3 +85,14 @@ Debian 12 的 kexec-tools 2.0.25 按 `TEXT_OFFSET=0x8000` 估算，
 - `panic=10` 可能自动退回默认内核；监测既要识别候选成功，也要识别已回退，避免无谓地要求再次断电。
 - Debian 13 的 kexec-tools 2.0.29 已不带旧版 kexec-load 服务与 `LOAD_KEXEC` 变量；
   以实际软件包、unit 和 `kexec_loaded` 状态为准，不补回已经失效的配置。
+
+## 温度时钟与模块安装
+
+TSADC 节点启用后没有读数时，先检查真实的 `xin32k` 来源。本板需要 PCF8563 的
+CLKOUT；只补 fixed-clock 不会打开物理输出。I2C4 对应 ff160000，不能按节点排列顺序
+推算控制器编号。完整配置和验证边界见 [温度与调频](power-and-thermal.md)。
+
+模块归档不要直接对 `/` 解压。顶层 `lib/` 条目可能替换 Debian 的 `/lib -> usr/lib`，
+使 ELF 加载器和 SSH 一起失效。使用 [模块安装工具](../scripts/install_modules.py)
+校验归档，只写 canonical `usr/lib/modules`，保留原内核的模块目录。恢复时先从独立 TF
+启动，核对 eMMC 身份和目录内容，再恢复系统链接；不必因此重装根文件系统。

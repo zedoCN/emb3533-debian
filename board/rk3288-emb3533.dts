@@ -21,8 +21,44 @@
 &cpu1 { enable-method = "psci"; };
 &cpu2 { enable-method = "psci"; };
 &cpu3 { enable-method = "psci"; };
+// RTC CLKOUT supplies the real xin32k source used by TSADC. A fixed-clock
+// declaration alone cannot enable this board's physical clock output.
+&i2c4 {
+ status = "okay";
+ rtc: rtc@51 {
+  compatible = "nxp,pcf8563";
+  reg = <0x51>;
+  #clock-cells = <0>;
+  clock-output-names = "xin32k";
+ };
+};
+&tsadc {
+ status = "okay";
+ // Explicit provider dependency defers TSADC until RTC CLKOUT is registered.
+ assigned-clocks = <&rtc>, <&cru SCLK_TSADC>;
+ assigned-clock-rates = <32768>, <5000>;
+ pinctrl-0 = <&otp_pin>;
+ pinctrl-1 = <&otp_pin>;
+ pinctrl-2 = <&otp_pin>;
+ rockchip,hw-tshut-mode = <0>; // CRU reset, matching vendor wiring
+ rockchip,hw-tshut-polarity = <1>;
+ rockchip,hw-tshut-temp = <95000>;
+};
 &i2c0 {
  status = "okay"; clock-frequency = <400000>;
+ vdd_cpu: regulator@40 {
+  compatible = "silergy,syr827";
+  reg = <0x40>;
+  fcs,suspend-voltage-selector = <1>;
+  regulator-name = "vdd_cpu";
+  regulator-min-microvolt = <850000>;
+  regulator-max-microvolt = <1350000>;
+  regulator-always-on;
+  regulator-boot-on;
+  regulator-enable-ramp-delay = <300>;
+  regulator-ramp-delay = <8000>;
+  vin-supply = <&vcc_sys>;
+ };
  act8846: pmic@5a {
   compatible = "active-semi,act8846"; reg = <0x5a>;
   vp1-supply = <&vcc_sys>; vp2-supply = <&vcc_sys>; vp3-supply = <&vcc_sys>; vp4-supply = <&vcc_sys>;
@@ -97,7 +133,32 @@
 };
 
 // Match the vendor firmware's nonsecure DMA alias. Secure efuse is not needed
-// for this CLI probe (CPU DVFS is disabled and the Ethernet MAC is supplied).
+// for this CLI configuration (no fuse-based voltage binning is used).
 &dmac_bus_s { status = "disabled"; };
 &dmac_bus_ns { status = "okay"; };
 &efuse { status = "disabled"; };
+
+// Conservative vendor L0 voltages; initially cap DVFS at the firmware's
+// 816 MHz baseline. Higher OPPs need separate voltage/thermal validation.
+&cpu0 { cpu-supply = <&vdd_cpu>; };
+&cpu_opp_table {
+ /delete-node/ opp-312000000;
+ /delete-node/ opp-1008000000;
+ /delete-node/ opp-1200000000;
+ /delete-node/ opp-1416000000;
+ /delete-node/ opp-1512000000;
+ /delete-node/ opp-1608000000;
+ opp-126000000 { opp-microvolt = <950000>; };
+ opp-216000000 { opp-microvolt = <950000>; };
+ opp-408000000 { opp-microvolt = <975000>; };
+ opp-600000000 { opp-microvolt = <975000>; };
+ opp-696000000 { opp-microvolt = <975000>; };
+ opp-816000000 { opp-microvolt = <1075000>; };
+};
+// The inherited maximum cooling state 6 exceeds this six-entry OPP table.
+&cpu_thermal {
+ cooling-maps {
+  map0 { cooling-device = <&cpu0 THERMAL_NO_LIMIT THERMAL_NO_LIMIT>; };
+  map1 { cooling-device = <&cpu0 THERMAL_NO_LIMIT THERMAL_NO_LIMIT>; };
+ };
+};

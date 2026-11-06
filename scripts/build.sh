@@ -30,6 +30,7 @@ make -C "$SOURCE_DIR" O="$OUTPUT_DIR" -j"${JOBS:-4}" zImage rockchip/rk3288-emb3
 MODULES_DIR="$WORK_DIR/modules"
 make -C "$SOURCE_DIR" O="$OUTPUT_DIR" INSTALL_MOD_PATH="$MODULES_DIR" INSTALL_MOD_STRIP=1 modules_install
 find "$MODULES_DIR/lib/modules" -maxdepth 2 -type l \( -name build -o -name source \) -delete
-tar --owner=0 --group=0 -C "$MODULES_DIR" -czf "$WORK_DIR/emb3533-$VERSION-modules.tar.gz" "lib/modules/$VERSION-emb3533"
+KERNEL_RELEASE=$(make -s -C "$SOURCE_DIR" O="$OUTPUT_DIR" kernelrelease)
+tar --owner=0 --group=0 -C "$MODULES_DIR" -czf "$WORK_DIR/emb3533-$VERSION-modules.tar.gz" "lib/modules/$KERNEL_RELEASE"
 printf 'Built %s and %s\n' "$OUTPUT_DIR/arch/arm/boot/zImage" "$OUTPUT_DIR/arch/arm/boot/dts/rockchip/rk3288-emb3533-trial.dtb"
 printf 'eMMC variant: %s\n' "$OUTPUT_DIR/arch/arm/boot/dts/rockchip/rk3288-emb3533-emmc.dtb"

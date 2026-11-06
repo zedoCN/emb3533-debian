@@ -1,0 +1,15 @@
+[Unit]
+Description=Initialize EMB3533 image identities
+After=local-fs.target systemd-random-seed.service jitterentropy.service
+Wants=jitterentropy.service
+Before=network-pre.target networking.service ssh.service
+Wants=network-pre.target
+ConditionPathExists=!/var/lib/emb3533/initialized
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/sbin/emb3533-first-boot
+RemainAfterExit=yes
+
+[Install]
+WantedBy=multi-user.target

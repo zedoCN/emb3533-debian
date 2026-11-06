@@ -9,7 +9,7 @@ USB host1（`0xff540000`）上。它不能连接仅提供 5GHz 的网络；双�
 其他 USB host 和 OTG 不随之启用，因此不能据此宣称所有 USB 口都已适配。
 
 内核配置使用 `CONFIG_RTL8XXXU=m`，依赖 mac80211/cfg80211 与对应固件。
-驱动来自同版本 Linux 上游源码；验证中使用匹配已运行内核的单独模块构建。
+驱动来自同版本 Linux 上游源码；当前配置为模块，随匹配内核的模块包构建和安装。
 公开配置已纳入该选项，完整构建流程仍以 [构建指南](build.md) 的验证边界为准。
 
 ## 准备根文件系统
@@ -21,6 +21,14 @@ sudo apt install iw wpasupplicant firmware-realtek wireless-regdb usbutils
 ```
 
 固件为 `rtlwifi/rtl8188eufw.bin`；匹配模块安装及 `depmod` 后，由设备识别自动加载。
+
+本项目使用上游内核签名证书，应选择上游签名的监管数据库，保留签名校验：
+
+```sh
+sudo update-alternatives --set regulatory.db /lib/firmware/regulatory.db-upstream
+```
+
+若继续使用 Debian 重新签名的数据库，上游内核可能报告签名无效并退回默认监管规则。
 先确认 Hub、USB ID `0bda:8179`、无线接口和固件加载，再配置网络：
 
 ```sh

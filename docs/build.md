@@ -4,7 +4,7 @@
 
 本流程生成内核、板级 DTB、匹配模块和 KRNL 内核文件。
 它不准备分区表、Debian 根文件系统或原厂启动固件，也不会向块设备写入。
-完整系统还需要满足 [启动与恢复](boot-and-recovery.md) 中的条件。
+完整系统可继续使用 [镜像制作流程](images.md)，部署还需满足 [启动与恢复](boot-and-recovery.md) 中的条件。
 
 在 Linux 构建机上安装依赖：
 
@@ -90,8 +90,8 @@ KRNL 的 CRC 多项式为 `0x04c10db7`，不能换成常见的 zlib CRC32。
 - 保持 `CONFIG_ARM_APPENDED_DTB=y`、`CONFIG_ARM_ATAG_DTB_COMPAT=n`。
 - 内核启用 `CONFIG_CMDLINE_EXTEND`；不要在编译参数中固定 `init=/init`，覆盖 DT 中的 systemd 入口。
 - 根文件系统使用 Debian **armhf**，配置 systemd、有线网络、OpenSSH、自己的 SSH 密钥，安装并启用 `jitterentropy-rngd`。
-- 模块包须安装到目标根下的 `lib/modules/<kernelrelease>/`，再对该版本运行 `depmod`。
-  不把其他版本模块复制过来凑数。
+- 当前内核 release 为 `7.3.1-emb3533-power`。用 `scripts/install_modules.py` 将模块安装到目标根的 `usr/lib/modules/<kernelrelease>/`，再对该版本运行 `depmod`。
+  不把其他版本模块复制过来凑数，也不要把含顶层 `lib/` 的归档直接解压到 `/`。
 - 设置自己的稳定 MAC 或网络策略；公开 DTS 不包含实测设备的工厂 MAC。
 - 板载 Wi-Fi 使用 `CONFIG_RTL8XXXU=m`，根系统还需固件与网络工具，见 [Wi-Fi 指南](wifi.md)。
 
