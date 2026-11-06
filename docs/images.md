@@ -90,6 +90,11 @@ sudo python3 scripts/make_sd_image.py \
 
 ## 打包与验收
 
+r3 为 816MHz 上限，已完成下述实卡首次启动验收。r4 候选采用 126–1608MHz、
+`schedutil` 与原厂 L0 电压表；板级自动调频已在 eMMC 验证，见[温控说明](power-and-thermal.md)。
+r4 重新组装 FAT/ext4 和启动文件，并生成独立磁盘身份；不能继承 r3 的整卡冷启动验收标记。
+旧 r3 保留为已验证基线，r4 尚需重新写卡冷启动后才能标记为实卡验收通过。
+
 ```sh
 gzip -1 -k build/emb3533-debian13-cli.img
 sha256sum build/emb3533-debian13-cli.img.gz > build/emb3533-debian13-cli.img.gz.sha256

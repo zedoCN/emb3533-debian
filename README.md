@@ -12,7 +12,7 @@ NORCO EMB-3533 / RK3288 工控板的原生 Debian 命令行适配，面向脚本
 - TF 与 eMMC 启动均已验证正常重启和断电上电；使用 systemd、四核、有线网络与 SSH。
 - 支持 TF/eMMC ext4 根文件系统，匹配内核模块，以及 Python、SQLite 和基础网络服务。
 - 板载 RTL8188EU 2.4GHz Wi-Fi 的扫描、WPA2、DHCP、DNS/HTTPS、自动连接与纯无线 SSH 已验证。
-- 支持 CPU/GPU 温度、PCF8563 RTC，以及 126–816MHz 自动调频；六档电压回读、降温限频和有界负载验证通过。
+- 支持 CPU/GPU 温度、PCF8563 RTC，以及 126–1608MHz 按需调频；电压回读、自动温控降频及有界负载验证通过，长期稳定性仍待验证。
 - 一路外部 USB-SATA SSD 的 ext4 读写验证通过；原生 USB 仅 2.0，且与板载 Wi-Fi 共用 Hub 上行链路。
 - HDMI/DRM、声音、媒体及深度 idle 未启用；其余 USB 接口、OTG 和长期负载尚未验收。
 - 软件关机可卸载文件系统，但 PMIC 切电未完成，仍需手动断开 12V。

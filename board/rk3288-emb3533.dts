@@ -138,24 +138,24 @@
 &dmac_bus_ns { status = "okay"; };
 &efuse { status = "disabled"; };
 
-// Conservative vendor L0 voltages; initially cap DVFS at the firmware's
-// 816 MHz baseline. Higher OPPs need separate voltage/thermal validation.
+// Vendor L0 voltages; schedutil may use up to 1.608 GHz for short work.
+// Keep the thermal cooling maps active; sustained load can reduce the rate.
 &cpu0 { cpu-supply = <&vdd_cpu>; };
 &cpu_opp_table {
  /delete-node/ opp-312000000;
- /delete-node/ opp-1008000000;
- /delete-node/ opp-1200000000;
- /delete-node/ opp-1416000000;
- /delete-node/ opp-1512000000;
- /delete-node/ opp-1608000000;
  opp-126000000 { opp-microvolt = <950000>; };
  opp-216000000 { opp-microvolt = <950000>; };
  opp-408000000 { opp-microvolt = <975000>; };
  opp-600000000 { opp-microvolt = <975000>; };
  opp-696000000 { opp-microvolt = <975000>; };
  opp-816000000 { opp-microvolt = <1075000>; };
+ opp-1008000000 { opp-microvolt = <1150000>; clock-latency-ns = <40000>; };
+ opp-1200000000 { opp-microvolt = <1200000>; clock-latency-ns = <40000>; };
+ opp-1416000000 { opp-microvolt = <1300000>; clock-latency-ns = <40000>; };
+ opp-1512000000 { opp-microvolt = <1350000>; clock-latency-ns = <40000>; };
+ opp-1608000000 { opp-microvolt = <1350000>; clock-latency-ns = <40000>; };
 };
-// The inherited maximum cooling state 6 exceeds this six-entry OPP table.
+// Let cooling use the actual OPP count rather than a fixed state limit.
 &cpu_thermal {
  cooling-maps {
   map0 { cooling-device = <&cpu0 THERMAL_NO_LIMIT THERMAL_NO_LIMIT>; };

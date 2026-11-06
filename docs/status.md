@@ -39,7 +39,7 @@
 | 功能 | 状态 |
 | --- | --- |
 | HDMI/DRM、声音、媒体 | 配置关闭，提供 SSH 命令行用途 |
-| CPU 调频 | 126–816MHz、schedutil；逐档电压/频率回读与 cooling-device 限频通过 |
+| CPU 调频 | 126–1608MHz、schedutil；逐档电压/频率、短负载升频、持续负载自动温控降频与正常重启通过，详见[温控说明](power-and-thermal.md) |
 | 深度 idle / 挂起 | 未启用新的 PSCI 休眠状态；固件完整能力未验证 |
 | 其余 USB / OTG | 未做逐口插拔或 OTG 主从切换验证 |
 | 容器与命名空间 | 当前 NAMESPACES、OVERLAY_FS 未启用；不能按标准 Docker/Podman 容器环境使用 |
