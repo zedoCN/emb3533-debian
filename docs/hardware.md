@@ -10,6 +10,7 @@
 | 板载存储 | 标称 16GB eMMC，可部署 Debian |
 | 根文件系统 | TF 或 eMMC，Debian armhf |
 | 有线网络 | 千兆以太网，基础联网已验证 |
+| USB | RK3288 原生 USB 2.0，最高 480Mbps；没有原生 USB 3.0 |
 | Wi-Fi | RTL8188EU USB，2.4GHz，Debian 下已验证联网；不支持 5GHz |
 | 原 Android | Android 7.1.2，固件构建日期 2023-03-03 |
 | 原厂引导器 | `2014.10-RK3288-06-g37a5f47`，默认 `bootcmd=bootrk` |
@@ -21,6 +22,10 @@
 
 厂家资料：[产品页](https://www.norco.com.cn/product_detail_363.html)、
 [ARM Wiki](http://android1.norco.com.cn:7070/index.php/EMB-3533)。
+
+RK3288 的 USB Host / OTG 均为 2.0，见 [瑞芯微数据手册](https://opensource.rock-chips.com/images/4/4e/Rockchip_RK3288_Datasheet_V2.2-20170301.pdf)。
+项目已启用的 host1 经内部 Hub 连接 Wi-Fi 与一个已验证的外部 USB-SATA SSD 接口，
+二者共享这条 USB 2.0 上行链路。升级内核不能把原生接口升级成 USB 3.0。
 
 ## DEBUG 与 OTG 是两个接口
 

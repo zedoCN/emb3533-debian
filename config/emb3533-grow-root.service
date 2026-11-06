@@ -1,0 +1,15 @@
+[Unit]
+Description=Expand the EMB3533 TF root partition
+After=local-fs.target
+Before=emb3533-first-boot.service
+ConditionPathExists=/etc/emb3533-image.json
+ConditionPathExists=!/var/lib/emb3533/root-expanded
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/sbin/emb3533-grow-root
+TimeoutStartSec=300
+RemainAfterExit=yes
+
+[Install]
+WantedBy=multi-user.target

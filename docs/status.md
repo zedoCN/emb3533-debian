@@ -27,6 +27,7 @@
 | 有线网络 | DHCP、DNS、密钥 SSH、局域网另一台机器直连 HTTP 200 |
 | 板载 Wi-Fi | RTL8188EU/rtl8xxxu，2.4GHz；识别/扫描/WPA2/DHCP/DNS/HTTPS与正常重启自动连接通过 |
 | 无线独立访问 | 临时停用以太网后无线 SSH、HTTPS通过；有线链路 down 且地址保留时，路由可选择无线 |
+| USB 大容量存储 | 当前已启用的一路外部接口，USB-SATA SSD 枚举、ext4 挂载、256MiB 写入/fsync/回读摘要通过；USB 2.0 / usb-storage，非 UAS |
 | 内部 USB 链路 | USB host1 → 7口 Hub → RTL8188EU 枚举和运行通过 |
 | 基础应用 | Python、SQLite、临时 systemd 服务运行通过 |
 | 内核模块 | 匹配模块安装、vermagic 比对与 algif_hash 加载/卸载通过 |
@@ -46,7 +47,7 @@
 | 温度、RTC | PCF8563 CLKOUT 驱动 TSADC，CPU/GPU 温度可读；RTC 校时通过；未做临界温度触发测试 |
 | 有界负载 | 四核、约512MiB计算校验约9分钟，包含eMMC fsync/回读和Wi-Fi HTTPS；不能证明长期稳定性 |
 | PMIC 软件切电 | 未完成；文件系统卸载后不切电，随后可能出现 RCU 停机警告，需手动断 12V |
-| 镜像构建 | 提供干净根系统和个性化TF整卡构建器；根系统RAM试启动、身份初始化、密钥SSH、应用与HTTPS通过；完整写卡冷启动待验收 |
+| 镜像构建 | v2 提供干净底包、FAT 首次配置和 SD 根自动扩容；配置导入与 Linux loop 在线扩容通过。早期根系统 RAM 试启动/SSH/应用/HTTPS通过；新版整卡冷启动仍待验收 |
 | eMMC 安装器 | 仍使用身份绑定的迁移流程，未提供通用自动安装器 |
 | 全新构建环境复现 | 内核与模块已构建验证；公开构建脚本的完整全新环境复现仍待完成 |
 

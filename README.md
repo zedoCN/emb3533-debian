@@ -13,7 +13,8 @@ NORCO EMB-3533 / RK3288 工控板的原生 Debian 命令行适配，面向脚本
 - 支持 TF/eMMC ext4 根文件系统，匹配内核模块，以及 Python、SQLite 和基础网络服务。
 - 板载 RTL8188EU 2.4GHz Wi-Fi 的扫描、WPA2、DHCP、DNS/HTTPS、自动连接与纯无线 SSH 已验证。
 - 支持 CPU/GPU 温度、PCF8563 RTC，以及 126–816MHz 自动调频；六档电压回读、降温限频和有界负载验证通过。
-- HDMI/DRM、声音、媒体及深度 idle 未启用；其余 USB 接口、OTG和长期负载尚未验收。
+- 一路外部 USB-SATA SSD 的 ext4 读写验证通过；原生 USB 仅 2.0，且与板载 Wi-Fi 共用 Hub 上行链路。
+- HDMI/DRM、声音、媒体及深度 idle 未启用；其余 USB 接口、OTG 和长期负载尚未验收。
 - 软件关机可卸载文件系统，但 PMIC 切电未完成，仍需手动断开 12V。
 
 温控与调频版本 `7.3.1-emb3533-power` 已通过 eMMC 独立冷启动；新版完整 TF 镜像的写卡冷启动仍待验收。
@@ -39,7 +40,7 @@ NORCO EMB-3533 / RK3288 工控板的原生 Debian 命令行适配，面向脚本
 | 排查 kexec、timer/DMA、init 和随机数问题 | [适配经验](docs/bringup-notes.md) |
 | 配置板载 Wi-Fi 与有线共存 | [Wi-Fi 指南](docs/wifi.md) |
 | 了解温度、RTC、CPU 调频及其边界 | [温度与调频](docs/power-and-thermal.md) |
-| 构建干净根系统与个性化 TF 镜像 | [镜像制作](docs/images.md) |
+| 构建带首次配置和自动扩容的 TF 镜像 | [镜像制作](docs/images.md) |
 | 提取原 Android 并保存到私有服务器 | [Android eMMC 备份](docs/android-backup.md) |
 | 查看验证范围、未完成项或贡献代码 | [支持矩阵](docs/status.md) · [贡献指南](CONTRIBUTING.md) |
 
@@ -65,9 +66,9 @@ bash scripts/build.sh
 board/       TF 与 eMMC 板级 DTS、实测内核配置
 patches/     板级内核补丁
 scripts/     内核/根系统构建、KRNL 封装、镜像生成和模块安装
-config/      首次启动配置
+config/      首次启动服务与配置分区示例
 docs/        硬件、构建、启动、迁移与排障文档
-tests/       启动封装与模块归档安全测试
+tests/       封装、模块安装、配置导入与扩容测试
 ```
 
 公开 DTS 不包含单台机器的 MAC，部署时需设置自己的网络身份。

@@ -1,0 +1,8 @@
+{
+  "hostname": "emb3533-debian",
+  "wifi": {
+    "country": "CN",
+    "ssid": "YOUR_2_4_GHZ_WIFI",
+    "password": "REPLACE_WITH_YOUR_WIFI_PASSWORD"
+  }
+}
